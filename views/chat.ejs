@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocketIO</title>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script type="module" defer>
+        const settings  = { transport: ['websocket'], upgrade: false };
+        const socket    = io( settings );
+        const form      = document.getElementById('chat');
+        const userlist  = document.getElementById('userlist');
+        const messages  = document.getElementById('messages');
+        const message   = document.getElementById('message');
+        const username  = window.location.href.split('/').pop();
+
+        socket.emit('join', username);
+        console.log('Uw username is: ' + username);
+
+        socket.on('join', (data) => {
+            const { username, users } = data;
+            let li = document.createElement('li');
+            li.textContent = `${username} Joined the chat.`;
+            messages.appendChild(li);
+            messages.scrollTo(0, messages.scrollHeight);
+            userlist.innerHTML = '';
+
+            for (let i=0; i<users.length; i++) {
+                li = document.createElement('li');
+                li.textContent = users[i];
+                userlist.appendChild(li);
+            }
+        });
+        socket.on('leave', (data) => {
+            const { username, users } = data;
+            let li = document.createElement('li');
+            li.textContent = `${username} Has left the chat.`;
+            messages.appendChild(li);
+            messages.scrollTo(0, messages.scrollHeight);
+            userlist.innerHTML = '';
+
+            for (let i=0; i<users.length; i++) {
+                li = document.createElement('li');
+                li.textContent = users[i];
+                userlist.appendChild(li);
+            }
+        });
+        socket.on('message', (data) => {
+            const { messenger, message } = data;
+            const li = document.createElement('li');
+            li.textContent = `${messenger} : ${message}`;
+            messages.appendChild(li);
+            messages.scrollTo(0, messages.scrollHeight);
+        });
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const messageValue = message.value.trim();
+            if (message.value) {
+                socket.emit('message', {messenger:username, message:message.value });
+                message.value = '';
+            }
+        });
+
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul {
+            position: absolute;
+            height: 300px;
+            top: 15px;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            list-style: none;
+            padding-top: 2px;
+        }
+
+        ul#messages {
+            width: 400px;
+            right: 15px;
+            background-color: #ddd;
+        }
+
+        ul#userlist {
+            width: 200px;
+            right: 430px;
+            background-color: #888;  
+        }
+
+        li {
+            padding-left: 5px;
+            padding-bottom: 2px;
+            width: 100%;
+        }
+
+        input#message {
+            position: absolute;
+            width: 520px;
+            top: 330px;
+            right: 104px;
+            line-height: 24px;
+            padding-left: 5px; 
+        }
+
+        button#send {
+            position: absolute;
+            line-height: 24px;
+            top: 330px;
+            right: 15px;
+            width: 80px;            
+        }
+    </style>
+</head>
+<body>
+    <h2>Hallo <%= locals.username %></h2>
+    <form id="chat">
+        <ul id="userlist">
+        </ul>
+        <ul id="messages">
+        </ul>
+        <input id="message" autocomplete="off" />
+        <button id="send">send</button>
+    </form>
+</body>
+</html>

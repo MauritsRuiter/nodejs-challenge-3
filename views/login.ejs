@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SocketIO - Login</title>
+</head>
+
+<body>
+    <h2>Please enter your username</h2>
+    <form method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Username" value="<%= locals.username %>" autocomplete="off" autofocus required />
+        <input type="submit" value="login" />
+    </form>
+</body>
+
+</html>
